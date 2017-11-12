@@ -3,18 +3,17 @@
 import PackageDescription
 
 let package = Package(
-    name: "panda",
+    name: "Tail",
     products: [
         .library(name: "App", targets: ["App"]),
         .executable(name: "Run", targets: ["Run"])
     ],
     dependencies: [
         .package(url: "https://github.com/vapor/vapor.git", .upToNextMajor(from: "2.1.0")),
-        .package(url: "https://github.com/vapor/fluent-provider.git", .upToNextMajor(from: "1.2.0")),
-        .package(url: "https://github.com/vapor-community/postgresql-provider.git", .upToNextMajor(from: "2.0.0"))
+        .package(url: "https://github.com/vapor/fluent-provider.git", .upToNextMajor(from: "1.2.0"))
     ],
     targets: [
-        .target(name: "App", dependencies: ["Vapor", "FluentProvider", "PostgreSQLProvider"],
+        .target(name: "App", dependencies: ["Vapor", "FluentProvider"],
                 exclude: [
                     "Config",
                     "Public",
