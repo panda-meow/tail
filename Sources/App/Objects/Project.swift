@@ -23,6 +23,16 @@ public struct Project: JSONRepresentable {
         return url(for: "thumbnail")
     }
     
+    public var text: [URL] {
+        let textDir = directory.appendingPathComponent("text", isDirectory: true)
+        if FileManager.default.fileExists(atPath: textDir.path),
+            let urls = try? FileManager.default.contentsOfDirectory(at: textDir, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
+            return urls
+        } else {
+            return []
+        }
+    }
+    
     public var headerURL: URL {
         return url(for: "header")
     }
@@ -33,6 +43,10 @@ public struct Project: JSONRepresentable {
     
     public var hasHeader: Bool {
         return FileManager.default.fileExists(atPath: headerURL.path)
+    }
+    
+    public var hasJS: Bool {
+        return headerURL.lastPathComponent.hasSuffix(".js")
     }
     
     public init(directory: URL, id: Int, name: String, categories: [String], title: String, likes: Int) {
@@ -56,15 +70,22 @@ public struct Project: JSONRepresentable {
         try json.set("default", true)
         try json.set("thumbnail", hasThumbnail)
         try json.set("header", hasHeader)
+        
+        if text.count > 0 {
+            try json.set("body", String(contentsOf: text[0]))
+        }
 
         return json
     }
     
-    private func url(for resource: String) -> URL {
+    private func url(for resource: String, supportJS: Bool = false) -> URL {
         let jpg = directory.appendingPathComponent("\(resource).jpg")
+        let js = directory.appendingPathComponent("\(resource).js")
         let png = directory.appendingPathComponent("\(resource).png")
         
-        if FileManager.default.fileExists(atPath: jpg.path) {
+        if supportJS, FileManager.default.fileExists(atPath: js.path) {
+            return js
+        } else if FileManager.default.fileExists(atPath: jpg.path) {
             return jpg
         } else {
             return png
@@ -80,7 +101,7 @@ extension Project {
             throw ProjectParseError.invalidProperty(name: "Title")
         }
         
-        let categories = info.array(for: "Categories") ?? [ info.category ]
+        let categories = info.array(for: "Categories") ?? []
 
         return Project(directory: info.directory, id: info.id, name: info.name, categories: categories, title: title, likes: 0)
     }

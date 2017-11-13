@@ -1,3 +1,4 @@
+import Foundation
 import App
 
 /// We have isolated all of our App's logic into
@@ -17,6 +18,8 @@ import App
 /// .run() runs the Droplet's commands, 
 /// if no command is given, it will default to "serve"
 
+
+
 _ = ProjectManager.shared
 
 let config = try Config()
@@ -25,8 +28,10 @@ try config.setup()
 let drop = try Droplet(config)
 try drop.setup()
 
-drop.get { _ in
-    return "hi"
+
+drop.post("heroes", "reload") { request in
+    ProjectManager.shared.update()
+    return Response(status: .ok)
 }
 
 drop.get("heroes", Int.parameter) { request in

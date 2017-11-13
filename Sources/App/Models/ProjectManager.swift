@@ -12,85 +12,27 @@ public enum ProjectParseError: Error {
     case invalidProperty(name: String)
 }
 
-public struct ProjectInfo {
-    
-    public let directory: URL
-    
-    public let id: Int
-    public let name: String
-    public let category: String
-    
-    private let properties: [String: String]
-    
-    fileprivate init(directory: URL, id: Int, name: String, category: String, properties: [String: String]) {
-        self.directory = directory
-        self.id = id
-        self.name = name
-        self.category = category
-        self.properties = properties
-    }
-    
-    public func int(for key: String) -> Int? {
-        if let value = properties[key] {
-            return Int(value)
-        } else {
-            return nil
-        }
-    }
-    
-    public func string(for key: String) -> String? {
-        return properties[key]
-    }
-    
-    public func array(for key: String) -> [String]? {
-        return properties[key]?.commaSeparatedArray()
-    }
-    
-    private static func process(lines: [String]) -> [String: String] {
-        var properties = [String: String]()
-        
-        for line in lines {
-            if let range = line.range(of: ":") {
-                let key = String(line[..<range.lowerBound])
-                let value = String(line[range.upperBound...])
-                
-                properties[key] = value
-            }
-        }
-        
-        return properties
-    }
-    
-    fileprivate static func parse(id: Int, url: URL) -> ProjectInfo? {
-        let name = url.pathComponents[url.pathComponents.count - 1]
-        let category = url.pathComponents[url.pathComponents.count - 2]
-        
-        
-        if let lines = (try? String(contentsOf: url.appendingPathComponent("info")))?.components(separatedBy: .newlines) {
-            let properties = process(lines: lines)
-            return ProjectInfo(directory: url, id: id, name: name, category: category, properties: properties)
-        } else {
-            return nil
-        }
-    }
-    
-
-}
-
 public class ProjectManager {
     
-    public static let `shared` = ProjectManager()
-    
-    private var categories: [String: [Project]]!
-    
-    public var projects: [Project] {
-        get {
-            return categories.values.array.reduce([], +)
+    public static let `shared`: ProjectManager = {
+        if let path = ProcessInfo.processInfo.environment["PANDA_HOME"] {
+            return ProjectManager(directory: URL(fileURLWithPath: path))
+        } else {
+            fatalError("PANDA_HOME not set!!!")
         }
-    }
+    }()
+    
+    public private(set) var projects: [Project]!
+    
+    private let directory: URL
 
-    private init() {
-        categories = self.scan()
+    private init(directory: URL) {
+        self.directory = directory
+        update()
+    }
+    
+    public func update() {
+        projects = self.scan()
     }
     
     public func project(for id: Int) -> Project? {
@@ -125,22 +67,24 @@ public class ProjectManager {
         
     }
     
-    private func scan() -> [String: [Project]] {
+    private func scan() -> [Project] {
         do {
+            var projects = [Project]()
             
-            var categories = [String: [Project]]()
+            let urls = try FileManager.default.contentsOfDirectory(at: directory.appendingPathComponent("Projects", isDirectory: true), includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
             
-            let urls = try FileManager.default.contentsOfDirectory(at: URL(fileURLWithPath: "/Users/matt/Portfolio/Projects"), includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
-            
-            for url in urls {
-                categories[url.lastPathComponent] = scan(category: url)
+            for (index, url) in urls.enumerated() {
+                print("**** Processing \(url.lastPathComponent) ****")
+                
+                if let info = ProjectInfo.parse(id: index, url: url), let project = try Project.parse(info: info) {
+                    projects.append(project)
+                }
             }
             
-            return categories
+            return projects
 
         } catch {
             fatalError("Exception processing projects: \(error.localizedDescription)")
         }
     }
-
 }
