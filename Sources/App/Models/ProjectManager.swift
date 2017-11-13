@@ -71,7 +71,7 @@ public class ProjectManager {
         do {
             var projects = [Project]()
             
-            let urls = try FileManager.default.contentsOfDirectory(at: directory.appendingPathComponent("Projects", isDirectory: true), includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+            let urls = try FileManager.default.contentsOfDirectory(at: directory.appendingPathComponent("content", isDirectory: true), includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
             
             for (index, url) in urls.enumerated() {
                 print("**** Processing \(url.lastPathComponent) ****")
