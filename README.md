@@ -2,6 +2,6 @@
 
 ### Installation
 
-'''
+```
 curl blah
-'''
+```
