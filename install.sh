@@ -14,4 +14,4 @@ git clone https://github.com/panda-meow/tools.git
 git clone https://github.com/panda-meow/content.git
 git clone https://github.com/panda-meow/whiskers.git
 
-echo -e "\nsource ~/$PANDA_HOME/tools/pandarc" >> ~/.bashrc
+echo -e "\nsource $PANDA_HOME/tools/pandarc" >> ~/.bashrc
