@@ -3,5 +3,5 @@
 ### Installation
 
 ```
-eval "$(curl -sL https://raw.githubusercontent.com/panda-meow/tail/master/install.sh)"
+curl -sL https://raw.githubusercontent.com/panda-meow/tail/master/install.sh | bash -s
 ```

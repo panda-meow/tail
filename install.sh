@@ -3,7 +3,7 @@
 set -e
 set -u
 
-PANDA_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+# PANDA_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 mkdir "Panda.Meow" || exit 1
 
