@@ -29,12 +29,12 @@ let drop = try Droplet(config)
 try drop.setup()
 
 
-drop.post("heroes", "reload") { request in
+drop.post("projects", "reload") { request in
     ProjectManager.shared.update()
     return Response(status: .ok)
 }
 
-drop.get("heroes", Int.parameter) { request in
+drop.get("projects", Int.parameter) { request in
     let id = try request.parameters.next(Int.self)
     
     if let project = ProjectManager.shared.project(for: id) {
@@ -47,13 +47,13 @@ drop.get("heroes", Int.parameter) { request in
     }
 }
 
-drop.get("heroes") { request in
+drop.get("projects") { request in
     let response = try! Response(status: .ok, json: JSON(ProjectManager.shared.projects.map({ try! $0.makeJSON() })))
     response.headers["Access-Control-Allow-Origin"] = "*"
     return response
 }
 
-drop.get("heroes", Int.parameter, "thumbnail") { request in
+drop.get("projects", Int.parameter, "thumbnail") { request in
     let id = try request.parameters.next(Int.self)
     
     if let project = ProjectManager.shared.project(for: id), let response = try? Response(filePath: project.thumbnailURL.path) {
@@ -64,7 +64,7 @@ drop.get("heroes", Int.parameter, "thumbnail") { request in
     }
 }
 
-drop.get("heroes", Int.parameter, "header") { request in
+drop.get("projects", Int.parameter, "header") { request in
     let id = try request.parameters.next(Int.self)
     
     if let project = ProjectManager.shared.project(for: id), let response = try? Response(filePath: project.headerURL.path) {
