@@ -26,7 +26,9 @@ public struct Project: JSONRepresentable {
     public var text: [URL] {
         let textDir = directory.appendingPathComponent("text", isDirectory: true)
         if FileManager.default.fileExists(atPath: textDir.path),
-            let urls = try? FileManager.default.contentsOfDirectory(at: textDir, includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
+            let urls = try? FileManager.default.contentsOfDirectory(at: textDir, includingPropertiesForKeys: nil, options: []).filter({
+                return !$0.lastPathComponent.hasPrefix(".")
+            }) {
             return urls
         } else {
             return []
@@ -72,7 +74,7 @@ public struct Project: JSONRepresentable {
         try json.set("header", hasHeader)
         
         if text.count > 0 {
-            try json.set("body", String(contentsOf: text[0]))
+            try json.set("body", String(contentsOf: text[0], encoding: .utf8))
         }
 
         return json
