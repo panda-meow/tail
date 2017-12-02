@@ -57,12 +57,12 @@ public struct ProjectInfo {
     static func parse(id: Int, url: URL) -> ProjectInfo? {
         let name = url.pathComponents[url.pathComponents.count - 1]
         
-        
-        if let lines = (try? String(contentsOf: url.appendingPathComponent("info")))?.components(separatedBy: .newlines) {
+        do {
+            let lines = (try String(contentsOf: url.appendingPathComponent("info"))).components(separatedBy: .newlines)
             let properties = process(lines: lines)
             return ProjectInfo(directory: url, id: id, name: name, properties: properties)
-        } else {
-            print("Failed to parse ProjectInfo!")
+        } catch {
+            print("Failed to parse ProjectInfo: \(url.path): \(error.localizedDescription)")
             return nil
         }
     }
