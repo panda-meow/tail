@@ -49,7 +49,9 @@ public class ProjectManager {
         do {
             var projects = [Project]()
             
-            let urls = try FileManager.default.contentsOfDirectory(at: category, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+            let urls = try FileManager.default.contentsOfDirectory(at: category, includingPropertiesForKeys: nil, options: []).filter({
+                return !$0.lastPathComponent.hasPrefix(".")
+            })
             
             for (index, url) in urls.enumerated() {
                 print("**** Processing \(url.lastPathComponent) ****")
@@ -71,7 +73,9 @@ public class ProjectManager {
         do {
             var projects = [Project]()
             
-            let urls = try FileManager.default.contentsOfDirectory(at: directory.appendingPathComponent("content", isDirectory: true), includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+            let urls = try FileManager.default.contentsOfDirectory(at: directory.appendingPathComponent("content", isDirectory: true), includingPropertiesForKeys: nil, options: []).filter({
+                    return !$0.lastPathComponent.hasPrefix(".")
+                })
             
             for (index, url) in urls.enumerated() {
                 print("**** Processing \(url.lastPathComponent) ****")
