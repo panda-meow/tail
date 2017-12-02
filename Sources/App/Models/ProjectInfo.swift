@@ -62,6 +62,7 @@ public struct ProjectInfo {
             let properties = process(lines: lines)
             return ProjectInfo(directory: url, id: id, name: name, properties: properties)
         } else {
+            print("Failed to parse ProjectInfo!")
             return nil
         }
     }
