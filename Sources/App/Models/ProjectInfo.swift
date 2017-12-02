@@ -58,7 +58,7 @@ public struct ProjectInfo {
         let name = url.pathComponents[url.pathComponents.count - 1]
         
         do {
-            let lines = (try String(contentsOf: url.appendingPathComponent("info"))).components(separatedBy: .newlines)
+            let lines = (try String(contentsOf: url.appendingPathComponent("info"), encoding: .utf8)).components(separatedBy: .newlines)
             let properties = process(lines: lines)
             return ProjectInfo(directory: url, id: id, name: name, properties: properties)
         } catch {
