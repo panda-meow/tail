@@ -14,6 +14,7 @@ public struct Project: JSONRepresentable {
     public let id: Int
     public let name: String
     public let title: String
+    public let description: String
     public let categories: [String]
     public let likes: Int
     
@@ -49,13 +50,14 @@ public struct Project: JSONRepresentable {
         return headerURL.lastPathComponent.hasSuffix(".js")
     }
     
-    public init(directory: URL, id: Int, name: String, categories: [String], title: String, likes: Int) {
+    public init(directory: URL, id: Int, name: String, categories: [String], title: String, likes: Int, description: String) {
         self.directory = directory
         self.id = id
         self.name = name
         self.title = title
         self.likes = likes
         self.categories = categories
+        self.description = description
     }
     
     public func makeJSON() throws -> JSON {
@@ -65,6 +67,7 @@ public struct Project: JSONRepresentable {
         try json.set("name", name)
         try json.set("alterEgo", title)
         try json.set("title", title)
+        try json.set("description", description)
         try json.set("likes", likes)
         try json.set("categories", categories)
         try json.set("default", true)
@@ -101,9 +104,11 @@ extension Project {
             throw ProjectParseError.invalidProperty(name: "Title")
         }
         
+        let description = info.string(for: "Description") ?? ""
+        
         let categories = info.array(for: "Categories") ?? []
 
-        return Project(directory: info.directory, id: info.id, name: info.name, categories: categories, title: title, likes: 0)
+        return Project(directory: info.directory, id: info.id, name: info.name, categories: categories, title: title, likes: 0, description: description)
     }
 }
 

@@ -13,7 +13,7 @@ public struct ProjectInfo {
     
     public let id: Int
     public let name: String
-    
+
     private let properties: [String: String]
     
     fileprivate init(directory: URL, id: Int, name: String, properties: [String: String]) {
