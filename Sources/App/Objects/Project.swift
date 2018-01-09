@@ -123,18 +123,9 @@ public struct Project: JSONRepresentable {
         
         try json.set("id", id)
         try json.set("name", name)
-        try json.set("alterEgo", title)
         try json.set("title", title)
-        try json.set("likes", likes)
         try json.set("categories", categories)
         try json.set("sections", sections)
-        try json.set("default", true)
-        try json.set("thumbnail", hasThumbnail)
-        try json.set("header", hasHeader)
-        
-        if text.count > 0 {
-            try json.set("body", String(contentsOf: text[0], encoding: .utf8))
-        }
 
         return json
     }
