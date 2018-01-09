@@ -53,6 +53,19 @@ drop.get("projects") { request in
     return response
 }
 
+drop.get("projects", Int.parameter, "assets", String.parameter) { request in
+    let id = try request.parameters.next(Int.self)
+    let asset = try request.parameters.next(String.self)
+
+    if let project = ProjectManager.shared.project(for: id),
+        let url = project.asset(for: asset), let response = try? Response(filePath: url.path) {
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        return response
+    } else {
+        return Response(status: .notFound)
+    }
+}
+
 drop.get("projects", Int.parameter, "thumbnail") { request in
     let id = try request.parameters.next(Int.self)
     

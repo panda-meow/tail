@@ -15,12 +15,13 @@ public struct ProjectInfo {
     public let name: String
     
     private let properties: [String: String]
-    
+
     fileprivate init(directory: URL, id: Int, name: String, properties: [String: String]) {
         self.directory = directory
         self.id = id
         self.name = name
         self.properties = properties
+        
     }
     
     public func int(for key: String) -> Int? {

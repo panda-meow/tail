@@ -8,6 +8,46 @@
 import Foundation
 import Vapor
 
+public struct ProjectSection: JSONRepresentable {
+    public let type: String
+    public let attributes: [String: Any]
+
+    public static func parse(url: URL, content: URL) throws -> ProjectSection? {
+        var properties = [String: String]()
+        
+        let lines = (try String(contentsOf: url, encoding: .utf8)).components(separatedBy: .newlines)
+        for line in lines {
+            if let range = line.range(of: ":") {
+                let key = String(line[..<range.lowerBound])
+                let value = String(line[range.upperBound...]).trim()
+                
+                if value.starts(with: "#") {
+                    properties[key] = try? String(contentsOf: content.appendingPathComponent(value.replacingOccurrences(of: "#", with: "")), encoding: .utf8)
+                } else {
+                    properties[key] = value
+                }
+                
+                
+            }
+        }
+        
+        if let type = properties["type"] {
+            return ProjectSection(type: type, attributes: properties)
+        } else {
+            return nil
+        }
+    }
+    
+    public func makeJSON() throws -> JSON {
+        var json = JSON()
+        
+        for (key, value) in attributes {
+            try json.set(key, value)
+        }
+
+        return json
+    }
+}
 
 public struct Project: JSONRepresentable {
 
@@ -18,6 +58,7 @@ public struct Project: JSONRepresentable {
     public let likes: Int
     
     private let directory: URL
+    private let sections: [ProjectSection]
     
     public var thumbnailURL: URL {
         return url(for: "thumbnail")
@@ -38,7 +79,7 @@ public struct Project: JSONRepresentable {
     public var headerURL: URL {
         return url(for: "header")
     }
-    
+
     public var hasThumbnail: Bool {
         return FileManager.default.fileExists(atPath: thumbnailURL.path)
     }
@@ -58,6 +99,23 @@ public struct Project: JSONRepresentable {
         self.title = title
         self.likes = likes
         self.categories = categories
+        
+        var i = 0
+        
+        let content = directory.appendingPathComponent("content", isDirectory: true)
+        
+        var sections = [ProjectSection]()
+        var section = directory.appendingPathComponent("sections", isDirectory: true).appendingPathComponent("\(i)")
+        
+        while FileManager.default.fileExists(atPath: section.path) {
+            if let value = try? ProjectSection.parse(url: section, content: content), let section = value  {
+                sections.append(section)
+            }
+            i += 1
+            section = directory.appendingPathComponent("sections", isDirectory: true).appendingPathComponent("\(i)")
+        }
+        
+        self.sections = sections
     }
     
     public func makeJSON() throws -> JSON {
@@ -69,6 +127,7 @@ public struct Project: JSONRepresentable {
         try json.set("title", title)
         try json.set("likes", likes)
         try json.set("categories", categories)
+        try json.set("sections", sections)
         try json.set("default", true)
         try json.set("thumbnail", hasThumbnail)
         try json.set("header", hasHeader)
@@ -78,6 +137,22 @@ public struct Project: JSONRepresentable {
         }
 
         return json
+    }
+    
+    public func asset(for name: String) -> URL? {
+        let assetURL = directory.appendingPathComponent("assets", isDirectory: true)
+        
+        if let urls = try? FileManager.default.contentsOfDirectory(at: assetURL, includingPropertiesForKeys: nil, options: [])
+            .filter({ return !$0.lastPathComponent.hasPrefix(".") }) {
+            
+            for url in urls {
+                if url.lastPathComponent == name {
+                    return url
+                }
+            }
+        }
+        
+        return nil
     }
     
     private func url(for resource: String, supportJS: Bool = false) -> URL {

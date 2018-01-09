@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 public enum ProjectParseError: Error {
     case invalidProperty(name: String)
 }
