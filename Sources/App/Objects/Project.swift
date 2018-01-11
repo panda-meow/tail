@@ -133,9 +133,7 @@ public struct Project: JSONRepresentable {
         attributes.removeValue(forKey: "Title")
         attributes.removeValue(forKey: "Categories")
 
-        for (key, value) in attributes {
-            try json.set(key, value)
-        }
+        try json.set("attributes", attributes)
 
         return json
     }
