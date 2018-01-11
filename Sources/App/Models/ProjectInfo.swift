@@ -14,7 +14,7 @@ public struct ProjectInfo {
     public let id: Int
     public let name: String
     
-    private let properties: [String: String]
+    public let properties: [String: String]
 
     fileprivate init(directory: URL, id: Int, name: String, properties: [String: String]) {
         self.directory = directory
@@ -46,7 +46,7 @@ public struct ProjectInfo {
         for line in lines {
             if let range = line.range(of: ":") {
                 let key = String(line[..<range.lowerBound])
-                let value = String(line[range.upperBound...])
+                let value = String(line[range.upperBound...]).trim()
                 
                 properties[key] = value
             }

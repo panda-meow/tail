@@ -28,7 +28,6 @@ try config.setup()
 let drop = try Droplet(config)
 try drop.setup()
 
-
 drop.post("projects", "reload") { request in
     ProjectManager.shared.update()
     return Response(status: .ok)

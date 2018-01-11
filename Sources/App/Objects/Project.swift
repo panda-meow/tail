@@ -56,6 +56,7 @@ public struct Project: JSONRepresentable {
     public let title: String
     public let categories: [String]
     public let likes: Int
+    public let attributes: [String: String]
     
     private let directory: URL
     private let sections: [ProjectSection]
@@ -92,13 +93,14 @@ public struct Project: JSONRepresentable {
         return headerURL.lastPathComponent.hasSuffix(".js")
     }
     
-    public init(directory: URL, id: Int, name: String, categories: [String], title: String, likes: Int) {
+    public init(directory: URL, id: Int, name: String, categories: [String], title: String, likes: Int, attributes: [String: String]) {
         self.directory = directory
         self.id = id
         self.name = name
         self.title = title
         self.likes = likes
         self.categories = categories
+        self.attributes = attributes
         
         var i = 0
         
@@ -126,6 +128,14 @@ public struct Project: JSONRepresentable {
         try json.set("title", title)
         try json.set("categories", categories)
         try json.set("sections", sections)
+        
+        var attributes = self.attributes
+        attributes.removeValue(forKey: "Title")
+        attributes.removeValue(forKey: "Categories")
+
+        for (key, value) in attributes {
+            try json.set(key, value)
+        }
 
         return json
     }
@@ -170,8 +180,8 @@ extension Project {
         }
         
         let categories = info.array(for: "Categories") ?? []
-
-        return Project(directory: info.directory, id: info.id, name: info.name, categories: categories, title: title, likes: 0)
+        
+        return Project(directory: info.directory, id: info.id, name: info.name, categories: categories, title: title, likes: 0, attributes: info.properties)
     }
 }
 
