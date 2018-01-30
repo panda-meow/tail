@@ -11,11 +11,12 @@ import Vapor
 public struct ProjectSection: JSONRepresentable {
     public let type: String
     public let attributes: [String: Any]
-
-    public static func parse(url: URL, content: URL) throws -> ProjectSection? {
+    
+    public static func parse(string: String, content: URL) -> ProjectSection? {
+        let lines = string.components(separatedBy: .newlines)
+        
         var properties = [String: String]()
         
-        let lines = (try String(contentsOf: url, encoding: .utf8)).components(separatedBy: .newlines)
         for line in lines {
             if let range = line.range(of: ":") {
                 let key = String(line[..<range.lowerBound])
@@ -26,8 +27,6 @@ public struct ProjectSection: JSONRepresentable {
                 } else {
                     properties[key] = value
                 }
-                
-                
             }
         }
         
@@ -36,6 +35,10 @@ public struct ProjectSection: JSONRepresentable {
         } else {
             return nil
         }
+    }
+
+    public static func parse(url: URL, content: URL) throws -> ProjectSection? {
+        return parse(string: try String(contentsOf: url, encoding: .utf8), content: content)
     }
     
     public func makeJSON() throws -> JSON {
@@ -107,16 +110,18 @@ public struct Project: JSONRepresentable {
         let content = directory.appendingPathComponent("content", isDirectory: true)
         
         var sections = [ProjectSection]()
-        var section = directory.appendingPathComponent("sections", isDirectory: true).appendingPathComponent("\(i)")
         
-        while FileManager.default.fileExists(atPath: section.path) {
-            if let value = try? ProjectSection.parse(url: section, content: content), let section = value  {
-                sections.append(section)
+        
+        let section = directory.appendingPathComponent("sections", isDirectory: false)
+        
+        if FileManager.default.fileExists(atPath: section.path), let string = try? String(contentsOf: section, encoding: .utf8) {
+            for string in string.replacingOccurrences(of: "\r\n", with: "\n").components(separatedBy: "\n\n") {
+                if let section = ProjectSection.parse(string: string, content: content) {
+                    sections.append(section)
+                }
             }
-            i += 1
-            section = directory.appendingPathComponent("sections", isDirectory: true).appendingPathComponent("\(i)")
         }
-        
+
         self.sections = sections
     }
     
