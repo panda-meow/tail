@@ -83,6 +83,10 @@ public struct Project: JSONRepresentable {
     public var headerURL: URL {
         return url(for: "header")
     }
+    
+    public var previewURL: URL {
+        return url(for: "preview")
+    }
 
     public var hasThumbnail: Bool {
         return FileManager.default.fileExists(atPath: thumbnailURL.path)

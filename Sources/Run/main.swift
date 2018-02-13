@@ -87,6 +87,18 @@ drop.get("projects", Int.parameter, "header") { request in
     }
 }
 
+drop.get("projects", Int.parameter, "preview") { request in
+    let id = try request.parameters.next(Int.self)
+    
+    if let project = ProjectManager.shared.project(for: id),
+        let response = try? Response(filePath: project.previewURL.path) {
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        return response
+    } else {
+        return Response(status: .notFound)
+    }
+}
+
 if let path = ProcessInfo.processInfo.environment["PANDA_HOME"] {
     let scanner = Scanner(baseDirectory: URL(fileURLWithPath: "\(path)/content", isDirectory: true), filter: { _ in return true })
     DispatchQueue.global(qos: .background).async {
