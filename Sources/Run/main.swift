@@ -87,4 +87,13 @@ drop.get("projects", Int.parameter, "header") { request in
     }
 }
 
+if let path = ProcessInfo.processInfo.environment["PANDA_HOME"] {
+    let scanner = Scanner(baseDirectory: URL(fileURLWithPath: "\(path)/content", isDirectory: true), filter: { _ in return true })
+    DispatchQueue.global(qos: .background).async {
+        Scanner.run(scanner: scanner) {
+            ProjectManager.shared.update()
+        }
+    }
+}
+
 try drop.run()
