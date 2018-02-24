@@ -7,6 +7,8 @@
 
 import Foundation
 
+#if os(Linux)
+#else
 public extension URL {
     
     public var modificationDate: Date? {
@@ -76,3 +78,4 @@ public class Scanner {
     }
     
 }
+#endif
