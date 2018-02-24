@@ -14,11 +14,15 @@ public enum ProjectParseError: Error {
 public class ProjectManager {
     
     public static let `shared`: ProjectManager = {
+        #if os(Linux)
+        return ProjectManager(directory: URL(fileURLWithPath: "/home/panda"))
+        #else
         if let path = ProcessInfo.processInfo.environment["PANDA_HOME"] {
             return ProjectManager(directory: URL(fileURLWithPath: path))
         } else {
             fatalError("PANDA_HOME not set!!!")
         }
+        #endif
     }()
     
     public private(set) var projects: [Project]!

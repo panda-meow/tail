@@ -99,6 +99,16 @@ drop.get("projects", Int.parameter, "preview") { request in
     }
 }
 
+
+
+#if os(Linux)
+let scanner = Scanner(baseDirectory: URL(fileURLWithPath: "/home/panda/content", isDirectory: true), filter: { _ in return true })
+DispatchQueue.global(qos: .background).async {
+    Scanner.run(scanner: scanner) {
+        ProjectManager.shared.update()
+    }
+}
+#else
 if let path = ProcessInfo.processInfo.environment["PANDA_HOME"] {
     let scanner = Scanner(baseDirectory: URL(fileURLWithPath: "\(path)/content", isDirectory: true), filter: { _ in return true })
     DispatchQueue.global(qos: .background).async {
@@ -107,5 +117,6 @@ if let path = ProcessInfo.processInfo.environment["PANDA_HOME"] {
         }
     }
 }
+#endif
 
 try drop.run()
